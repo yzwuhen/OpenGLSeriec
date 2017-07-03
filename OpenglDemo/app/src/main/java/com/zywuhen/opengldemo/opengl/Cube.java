@@ -1,7 +1,7 @@
 package com.zywuhen.opengldemo.opengl;
 
 /**
- * Copyright (C) 2017,深圳市红鸟网络科技股份有限公司 All rights reserved.
+ *
  * 项目名称：OpenglDemo
  * 类描述： 这里绘制正方体
  * 创建人：yqw
@@ -43,7 +43,21 @@ public class Cube extends Mesh{
         3,0,1,
         3,1,2,};
 
+        float[] colors = {
+                1f, 0f, 0f, 1f,
+                181f, 167f, 63f, 1f,
+                0f, 0f, 1f, 1f,
+                1f, 0f, 1f, 1f,
+
+                12f, 1, 2f, 1f,
+                181f, 167f, 63f, 1f,
+                126f, 0f, 1f, 1f,
+                1f, 126f, 1f, 1f,
+        };
+
+
         setVertices(vertices);
+     //   setColors(colors);
         setIndices(indices);
     }
 

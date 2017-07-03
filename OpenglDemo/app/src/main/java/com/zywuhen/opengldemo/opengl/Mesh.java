@@ -1,6 +1,7 @@
 package com.zywuhen.opengldemo.opengl;
 
-import android.icu.util.IndianCalendar;
+import android.graphics.Bitmap;
+import android.opengl.GLUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -10,7 +11,7 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * Copyright (C) 2017,深圳市红鸟网络科技股份有限公司 All rights reserved.
+ *
  * 项目名称：OpenglDemo
  * 类描述：
  * 创建人：yqw
@@ -28,9 +29,13 @@ public class Mesh {
     //short类型的缓冲区
     private ShortBuffer indicesBuffer = null;
 
+    //渲染材质的缓冲区
+    private FloatBuffer mtextureBuffer =null;
+
     private int numofIndices = -1;
 
     private float verticesArrad[];
+
 
     private float[] rgba = new float[]{1.0f,1.0f,1.0f,1.0f};
 
@@ -44,6 +49,8 @@ public class Mesh {
     public float rx =0;
     public float ry =0;
     public float rz =0;
+
+
 
 
     //按照惯例 写一个draw方法 绘制
@@ -75,11 +82,32 @@ public class Mesh {
             gl.glColorPointer(4, GL10.GL_FLOAT, 0, colorBuffer);
         }
 
+        if (mShouldLoadTexture){
+            loadGlTexture(gl);
+            mShouldLoadTexture = false;
+        }
+
+
+        if (mTextureId!=-1&&mtextureBuffer!=null){
+            gl.glEnable(GL10.GL_TEXTURE_2D);
+            //启动纹理坐标数据
+            gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+            //设置顶点数组为纹理坐标缓存==>与绘图一样是从缓冲区传入才画的
+            gl.glTexCoordPointer(2,GL10.GL_FLOAT,0,mtextureBuffer);
+
+            //允许建立一个绑定到目标纹理的有名称的纹理~
+            //target 第一个参数、纹理绑定的目标，它只能取值GL_TEXTURE_1D、GL_TEXTURE_2D、GL_TEXTURE_3D或者GL_TEXTURE_CUBE_MAP；==》与glEnable对应
+            //纹理的名称==不允许重复使用
+            gl.glBindTexture(GL10.GL_TEXTURE_2D,mTextureId);
+        }
+
+
         gl.glTranslatef(x,y,z);
         gl.glRotatef(rx,1,0,0);
         gl.glRotatef(ry,0,1,0);
         gl.glRotatef(rz,0,0,1);
 
+        //第一个参数为model== 指明基础绘制的几何图形的类型==》比如点 比如线 比如三角形  GL_TRIANGLES -》指的是相邻的三个点组成三角形
         gl.glDrawElements(GL10.GL_TRIANGLES,numofIndices,GL10.GL_UNSIGNED_SHORT, indicesBuffer);
         // gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP,0,verticesArrad.length/3);
 
@@ -100,6 +128,16 @@ public class Mesh {
         verticesBuffer.put(vertices);
         verticesBuffer.position(0);
     }
+
+    protected void setTextureBuffer(float[] textureBuffer){
+
+        ByteBuffer tbb = ByteBuffer.allocateDirect(textureBuffer.length*4);
+        tbb.order(ByteOrder.nativeOrder());
+        mtextureBuffer = tbb.asFloatBuffer();
+        mtextureBuffer.put(textureBuffer);
+        mtextureBuffer.position(0);
+    }
+
     //允许重新定义顶点顺序
     protected void setIndices(short[] indices){
         ByteBuffer ibb = ByteBuffer.allocateDirect(indices.length*2);
@@ -114,7 +152,7 @@ public class Mesh {
     //允许重新定义颜色
     protected void setColor(float red,float green, float bule, float alpha){
 
-       rgba[0]= red;
+        rgba[0]= red;
         rgba[1]= green;
         rgba[2]= bule;
         rgba[3]= alpha;
@@ -129,5 +167,33 @@ public class Mesh {
         colorBuffer =cbb.asFloatBuffer();
         colorBuffer.put(colors);
         colorBuffer.position(0);
+    }
+
+    private Bitmap mBitmap;
+    private boolean mShouldLoadTexture = false;
+    private int mTextureId =-1;
+    protected void loadBitmap (Bitmap bitmap){
+        this.mBitmap = bitmap;
+        mShouldLoadTexture =true;
+    }
+
+    private void loadGlTexture(GL10 gl10){
+
+        int[] texture =new int[1];
+        gl10.glGenTextures(0,texture,0);
+        mTextureId = texture[0];
+
+        gl10.glBindTexture(GL10.GL_TEXTURE_2D,mTextureId);
+        //设置纹理被缩小（距离视点很远时被缩小）时候的滤波方式
+        gl10.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_MIN_FILTER,GL10.GL_LINEAR);
+        // 设置纹理被放大（距离视点很近时被放大）时候的滤波方式
+        gl10.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_MAG_FILTER,GL10.GL_LINEAR);
+
+        // 设置在横向、纵向上都是平铺纹理
+        gl10.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_WRAP_S,GL10.GL_REPEAT);
+        gl10.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_WRAP_T,GL10.GL_REPEAT);
+
+        GLUtils.texImage2D(GL10.GL_TEXTURE_2D,0,mBitmap,0);
+
     }
 }

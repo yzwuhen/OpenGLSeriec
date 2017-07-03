@@ -14,7 +14,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * Copyright (C) 2017,深圳市红鸟网络科技股份有限公司 All rights reserved.
+ *
  * 项目名称：OpenglDemo
  * 类描述：
  * 创建人：yqw
@@ -37,18 +37,17 @@ public class EffectsRender implements GLSurfaceView.Renderer {
     private long startTime;
 
 
-    private Mesh root;
+    Group group;
     public EffectsRender(Context context) {
         super();
         this.mContext =context;
 
-        Group group = new Group();
-        Cube cube = new Cube(1,1,1);
+        group= new Group();
+      /*  Cube cube = new Cube(1,1,1);
         cube.rx=45;
         cube.ry =45;
 
-        group.add(cube);
-        root = group;
+        group.add(cube);*/
 
      //   square = new Square();
       /*  mBitmap = BitmapFactory.decodeResource(context.getResources(),R.mipmap.bitmap);
@@ -112,7 +111,7 @@ public class EffectsRender implements GLSurfaceView.Renderer {
         gl.glLoadIdentity();;
         gl.glTranslatef(0,0,-4);
 
-        root.draw(gl);
+        group.draw(gl);
 
 
         //将缓存清除为预先的设置值.
@@ -191,5 +190,9 @@ public class EffectsRender implements GLSurfaceView.Renderer {
         }
         xdistance++;*/
 
+    }
+
+    public void addMesh(Mesh mesh){
+        group.add(mesh);
     }
 }

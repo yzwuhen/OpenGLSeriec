@@ -1,7 +1,7 @@
 package com.zywuhen.opengldemo.opengl;
 
 /**
- * Copyright (C) 2017,深圳市红鸟网络科技股份有限公司 All rights reserved.
+ *
  * 项目名称：OpenglDemo
  * 类描述：
  * 创建人：yqw
